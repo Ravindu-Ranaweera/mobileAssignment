@@ -49,8 +49,7 @@ const Profile = ({navigation}) => {
       firestore()
         .collection('users')
         .where('userId', '==', data.user.uid)
-        .get()
-        .then(querySnapshot => {
+        .onSnapshot(querySnapshot => {
           console.log('Total User', querySnapshot.size);
 
           querySnapshot.forEach(documentSnapshot => {
@@ -95,8 +94,7 @@ const Profile = ({navigation}) => {
     firestore()
       .collection('posts')
       .where('user', '==', e)
-      .get()
-      .then(querySnapshot => {
+      .onSnapshot(querySnapshot => {
         console.log('Total post:', querySnapshot.size);
 
         querySnapshot.forEach(documentSnapshot => {
@@ -115,12 +113,12 @@ const Profile = ({navigation}) => {
       });
   };
 
-  const signOut = () => {
-    auth()
-      .signOut()
-      .then(() => console.log('User signed out!'));
-    navigation.navigate('Home');
-  };
+  // const signOut = () => {
+  //   auth()
+  //     .signOut()
+  //     .then(() => console.log('User signed out!'));
+  //   navigation.navigate('Home');
+  // };
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
       <View style={{...styles.root}}>
@@ -168,11 +166,11 @@ const Profile = ({navigation}) => {
             style={{...styles.buttonContainer}}>
             <Text style={{fontSize: 15, color: '#fff'}}>Edit</Text>
           </Pressable>
-          <Pressable
+          {/* <Pressable
             onPress={() => signOut()}
             style={{...styles.buttonContainer}}>
             <Text style={{fontSize: 15, color: '#fff'}}>Sign Out</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
       </View>
 

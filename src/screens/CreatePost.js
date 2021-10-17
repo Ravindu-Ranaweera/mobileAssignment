@@ -145,9 +145,10 @@ const CreatePost = ({navigation}) => {
           </View>
           <View>
             <TextInput
+              style={{borderColor: '#8c8c8c', borderBottomWidth: 2}}
               placeholder={'Enter your Idea'}
               multiline={true}
-              numberOfLines={4}
+              numberOfLines={2}
               onChangeText={setDescription}
               value={description}
             />

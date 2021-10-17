@@ -40,13 +40,13 @@ const NewsFeed = () => {
       // Error retrieving data
     }
   };
-  const getId = async e => {
+  const getId = e => {
     const list = [];
     let l;
     firestore()
       .collection('posts')
-      .get()
-      .then(querySnapshot => {
+      .orderBy('createdAt', 'desc')
+      .onSnapshot(querySnapshot => {
         console.log('Total post:', querySnapshot.size);
 
         querySnapshot.forEach(documentSnapshot => {
@@ -60,7 +60,27 @@ const NewsFeed = () => {
         });
         setPostList(list);
         setLoading(false);
-      });
+      }),
+      error => {
+        console.error(error);
+      };
+    // .get()
+    // .then(querySnapshot => {
+    //   console.log('Total post:', querySnapshot.size);
+
+    //   querySnapshot.forEach(documentSnapshot => {
+    //     console.log(
+    //       'post id: ',
+    //       documentSnapshot.id,
+    //       documentSnapshot.data(),
+    //     );
+    //     setKey(documentSnapshot.id);
+    //     list.push(documentSnapshot.data());
+    //   });
+    //   setPostList(list);
+    //   setLoading(false);
+    // }
+    // );
   };
   // console.log(postList);
   return (
