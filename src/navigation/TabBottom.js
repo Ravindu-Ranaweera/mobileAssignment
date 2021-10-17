@@ -4,11 +4,17 @@ import {Text, View, Animated, TouchableOpacity, Image} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import NewsFeed from '../screens/NewsFeed';
-import Profile from '../screens/Profile';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faHome, faUser} from '@fortawesome/free-solid-svg-icons';
+import {
+  faHome,
+  faUser,
+  faUsers,
+  faList,
+} from '@fortawesome/free-solid-svg-icons';
 import {useRef} from 'react';
 import ProfileNav from './ProfileNav';
+import ToDoNav from './ToDoNav';
+import FriendsNav from './FriendsNav';
 const Tab = createBottomTabNavigator();
 
 const TabBottom = () => {
@@ -24,7 +30,7 @@ const TabBottom = () => {
           bottom: 10,
           marginHorizontal: 20,
           // Max Height...
-          height: 60,
+          height: 50,
           borderRadius: 10,
           // Shadow...
           shadowColor: '#000',
@@ -33,7 +39,8 @@ const TabBottom = () => {
             width: 10,
             height: 10,
           },
-          paddingHorizontal: 20,
+          paddingHorizontal: 15,
+          paddingBottom: 60,
         },
       }}>
       <Tab.Screen
@@ -65,38 +72,68 @@ const TabBottom = () => {
           },
         })}
       />
-
       <Tab.Screen
-        name={'ActionButton'}
-        component={Profile}
+        name="Users"
+        component={FriendsNav}
         options={{
           tabBarIcon: ({focused}) => (
-            <TouchableOpacity>
-              <View
-                style={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: '#000',
-
-                  borderRadius: 30,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // marginBottom: Platform.OS == 'android' ? 30 : 30,
-                }}>
-                <Image
-                  source={require('../../assets/plus.png')}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    tintColor: 'white',
-                  }}></Image>
-              </View>
-            </TouchableOpacity>
+            <View
+              style={{
+                // centring Tab Button...
+                position: 'absolute',
+                top: 20,
+              }}>
+              <FontAwesomeIcon
+                icon={faUsers}
+                size={23}
+                color={focused ? '#0072ff' : '#fff'}
+              />
+            </View>
           ),
-        }}></Tab.Screen>
+        }}
+        listeners={({navigation, route}) => ({
+          // Onpress Update....
+          tabPress: e => {
+            Animated.spring(tabOffsetValue, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
+          },
+        })}
+      />
 
       <Tab.Screen
-        name="Settings"
+        name="ToDo"
+        component={ToDoNav}
+        options={{
+          tabBarIcon: ({focused}) => (
+            <View
+              style={{
+                // centring Tab Button...
+                position: 'absolute',
+                top: 20,
+              }}>
+              <FontAwesomeIcon
+                icon={faList}
+                size={18}
+                color={focused ? '#0072ff' : 'white'}
+              />
+            </View>
+          ),
+        }}
+        listeners={({navigation, route}) => ({
+          // Onpress Update....
+          tabPress: e => {
+            Animated.spring(tabOffsetValue, {
+              toValue: 0,
+              useNativeDriver: true,
+            }).start();
+          },
+        })}
+      />
+
+      <Tab.Screen
+        name="User"
         component={ProfileNav}
         options={{
           tabBarIcon: ({focused}) => (

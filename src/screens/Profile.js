@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Dimensions,
@@ -8,123 +8,227 @@ import {
   Pressable,
   ScrollView,
   SafeAreaView,
+  ActivityIndicator,
+  FlatList,
 } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-const onEditProf = () => {
-  console.warn('pressed sign in');
-};
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import firestore from '@react-native-firebase/firestore';
+import MyPostCard from '../components/MyPostCard';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import auth from '@react-native-firebase/auth';
 
+import {
+  faCircle,
+  faMapMarkedAlt,
+  faMailBulk,
+  faUserShield,
+} from '@fortawesome/free-solid-svg-icons';
 const Profile = ({navigation}) => {
+  const [userId, setUserId] = React.useState('');
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
+  const [location, setLocation] = React.useState('');
+  const [profileImg, setProfileImg] = React.useState(
+    'https://api-private.atlassian.com/users/8f525203adb5093c5954b43a5b6420c2/avatar',
+  );
+  const [user, setUser] = useState([]);
+  const [key, setKey] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [postList, setPostList] = useState([]);
+
+  useEffect(() => {
+    const getUser = async () => {
+      var value = await AsyncStorage.getItem('username');
+      const data = JSON.parse(value);
+      const list = [];
+      let l;
+      firestore()
+        .collection('users')
+        .where('userId', '==', data.user.uid)
+        .get()
+        .then(querySnapshot => {
+          console.log('Total User', querySnapshot.size);
+
+          querySnapshot.forEach(documentSnapshot => {
+            console.log(
+              'User id: ',
+              documentSnapshot.id,
+              documentSnapshot.data(),
+            );
+            setKey(documentSnapshot.id);
+            setUserId(documentSnapshot.data().userId);
+            setFirstName(documentSnapshot.data().firstName);
+            setLastName(documentSnapshot.data().lastName);
+            setLocation(documentSnapshot.data().location);
+            setUsername(documentSnapshot.data().email);
+            setProfileImg(documentSnapshot.data().profileImg);
+            list.push(documentSnapshot.data());
+
+            setUser(list);
+          });
+        });
+    };
+    getUser();
+    retrieveData();
+  }, []);
+
+  const retrieveData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('username');
+      if (value !== null) {
+        let js = JSON.parse(value);
+        // console.log(js.user.uid);
+        getId(js.user.uid);
+      }
+    } catch (error) {
+      console.log(error);
+      // Error retrieving data
+    }
+  };
+  const getId = async e => {
+    const list = [];
+    let l;
+    firestore()
+      .collection('posts')
+      .where('user', '==', e)
+      .get()
+      .then(querySnapshot => {
+        console.log('Total post:', querySnapshot.size);
+
+        querySnapshot.forEach(documentSnapshot => {
+          console.log(
+            'my post id: ',
+            documentSnapshot.id,
+            documentSnapshot.data(),
+          );
+          setKey(documentSnapshot.id);
+          list.push(documentSnapshot.data());
+        });
+        setPostList(list);
+        setLoading(false);
+        console.log(111111111111111111111111);
+        console.log(postList);
+      });
+  };
+
+  const signOut = () => {
+    auth()
+      .signOut()
+      .then(() => console.log('User signed out!'));
+    navigation.navigate('Home');
+  };
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View style={{flex: 1, backgroundColor: '#fff'}}>
-          <View style={{...styles.root}}>
-            <View style={{flex: 1, marginLeft: 10}}>
-              <Image
-                source={require('../../assets/profile.jpg')}
-                style={{...styles.logo}}
-              />
-            </View>
-            <View style={{flex: 2}}>
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: '#fff',
-                  marginTop: 20,
-                }}>
-                Pasindu Ayya
-              </Text>
-              <Text
-                style={{
-                  fontSize: 15,
-                  color: '#fff',
-                  marginTop: 5,
-                }}>
-                Pasindu@gmail.com
-              </Text>
-              <Pressable
-                onPress={() => navigation.navigate('EditProfile')}
-                style={{...styles.buttonContainer}}>
-                <Text style={{fontSize: 15, color: '#fff'}}>Edit</Text>
-              </Pressable>
-            </View>
-          </View>
-
-          <View style={{...styles.footer}}>
-            <View
-              style={{
-                ...StyleSheet.absoluteFillObject,
-                backgroundColor: '#000',
-              }}
-            />
-
-            <View
-              style={{
-                flex: 1,
-                backgroundColor: '#fff',
-                borderTopStartRadius: 85,
-              }}>
-              {/* create post card */}
-              <View style={{...styles.card}}>
-                <View style={{marginBottom: 10}}>
-                  <Text style={{color: 'black', fontSize: 16}}>Post</Text>
-                </View>
-
-                <View style={{display: 'flex', flexDirection: 'row'}}>
-                  <Image
-                    source={require('../../assets/image.png')}
-                    style={{height: 25, width: 30}}
-                  />
-                  <Text>Share Your Leadership Idea with Us</Text>
-                </View>
-                <View style={{alignItems: 'flex-end'}}>
-                  <Pressable
-                    onPress={() => navigation.navigate('CreatePost')}
-                    style={{...styles.buttonContainerTwo}}>
-                    <Text style={{fontSize: 15, color: '#fff'}}>
-                      Create Post
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-
-              {/* my past posts */}
-              <View style={{...styles.cardTwo}}>
-                <View style={{...styles.photoFrame}}>
-                  <Image
-                    source={require('../../assets/nf1.jpg')}
-                    style={{...styles.photo}}
-                  />
-                </View>
-                <View style={{...styles.textFrame}}>
-                  <Text style={{color: '#3EB489'}}>#BePositive</Text>
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontSize: 16,
-                      marginTop: 5,
-                      marginBottom: 5,
-                    }}>
-                    How to Be Positive
-                  </Text>
-                  <Text>
-                    Expo CLI configures your project to use the most recent
-                    React Native version that is supported by the Expo client
-                    app. The Expo client app usually gains support for a given
-                    React Native version about a week after the React Native
-                    version
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
+    <View style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={{...styles.root}}>
+        <View style={{flex: 1, marginLeft: 10}}>
+          <Image source={{uri: profileImg}} style={{...styles.logo}} />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <View style={{flex: 2}}>
+          <View style={{display: 'flex', flexDirection: 'row', margin: 5}}>
+            <FontAwesomeIcon icon={faUserShield} style={{color: '#3EB489'}} />
+            <Text
+              style={{
+                marginLeft: 10,
+                fontSize: 15,
+                textTransform: 'capitalize',
+                color: '#fff',
+              }}>
+              {firstName + ' ' + lastName}
+            </Text>
+          </View>
+          <View style={{display: 'flex', flexDirection: 'row', margin: 5}}>
+            <FontAwesomeIcon icon={faMailBulk} style={{color: '#3EB489'}} />
+            <Text
+              style={{
+                marginLeft: 10,
+                fontSize: 15,
+                color: '#fff',
+              }}>
+              {username}
+            </Text>
+          </View>
+          <View style={{display: 'flex', flexDirection: 'row', margin: 5}}>
+            <FontAwesomeIcon icon={faMapMarkedAlt} style={{color: '#3EB489'}} />
+            <Text
+              style={{
+                marginLeft: 10,
+                fontSize: 15,
+                textTransform: 'capitalize',
+                color: '#fff',
+              }}>
+              {location}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => navigation.navigate('EditProfile')}
+            style={{...styles.buttonContainer}}>
+            <Text style={{fontSize: 15, color: '#fff'}}>Edit</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => signOut()}
+            style={{...styles.buttonContainer}}>
+            <Text style={{fontSize: 15, color: '#fff'}}>Sign Out</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={{...styles.footer}}>
+        <View
+          style={{
+            ...StyleSheet.absoluteFillObject,
+            backgroundColor: '#000',
+          }}
+        />
+
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#fff',
+            borderTopStartRadius: 85,
+          }}>
+          {/* create post card */}
+          <View style={{...styles.card}}>
+            <View
+              style={{marginBottom: 10, display: 'flex', flexDirection: 'row'}}>
+              <Image
+                source={require('../../assets/image.png')}
+                style={{height: 25, width: 30}}
+              />
+              <Text style={{color: 'black', fontSize: 16}}>Post</Text>
+            </View>
+
+            <View style={{display: 'flex', flexDirection: 'row', margin: 5}}>
+              <View style={{flex: 2}}>
+                <Text>Share Your Leadership Idea with Us</Text>
+              </View>
+              <View style={{flex: 2, alignItems: 'flex-end', marginRight: 10}}>
+                <Pressable
+                  onPress={() => navigation.navigate('CreatePost')}
+                  style={{...styles.buttonContainerTwo}}>
+                  <Text style={{fontSize: 15, color: '#fff'}}>Create</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
+          {/* my past posts */}
+          {loading ? (
+            <ActivityIndicator />
+          ) : (
+            <FlatList
+              data={postList}
+              renderItem={({item}) => (
+                <MyPostCard item={item} navigation={navigation} />
+              )}
+            />
+          )}
+        </View>
+      </View>
+    </View>
   );
 };
 

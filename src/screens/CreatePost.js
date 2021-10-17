@@ -16,11 +16,8 @@ import firestore from '@react-native-firebase/firestore';
 import ImagePicker from 'react-native-image-crop-picker';
 import uuid from 'react-native-uuid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const _uploadByGallery = () => {
-  console.warn('pressed sign up');
-};
 
-const CreatePost = ({onPressLearnMore}) => {
+const CreatePost = ({navigation}) => {
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
   const [hashtag, setHashtag] = React.useState('');
@@ -79,15 +76,18 @@ const CreatePost = ({onPressLearnMore}) => {
   };
   const createPost = async url => {
     var value = await AsyncStorage.getItem('username');
-    console.log(value);
+    const data = JSON.parse(value);
+    const pId = uuid.v4();
     firestore()
       .collection('posts')
       .add({
+        user: data.user.uid,
         title: title,
         description: description,
         hashTag: hashtag,
         createdAt: createdAt,
         imageUrl: url,
+        postId: pId,
       })
       .then(() => {
         console.log('Post added!');
@@ -99,6 +99,7 @@ const CreatePost = ({onPressLearnMore}) => {
           'https://api-private.atlassian.com/users/8f525203adb5093c5954b43a5b6420c2/avatar',
         );
       });
+    navigation.navigate('Home');
   };
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>

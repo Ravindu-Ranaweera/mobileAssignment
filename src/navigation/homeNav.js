@@ -9,13 +9,20 @@ import TabBottom from './TabBottom';
 const Stack = createStackNavigator();
 const HomeNav = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#000',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontSize: 16,
+        },
+      }}>
       <Stack.Screen
         name="Home"
         component={Home}
-        Options={{
-          headerShown: false,
-        }}
+        options={{headerShown: false}}
       />
       <Stack.Screen name="Login" component={SignIn} />
       <Stack.Screen name="SignUp" component={SignUp} />

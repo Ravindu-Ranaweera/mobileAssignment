@@ -11,17 +11,14 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import CustomButton from '../components/CustomButton';
-import CustomInput from '../components/CustomInput';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
-import PostCard from '../components/PostCard';
+import FriendCard from '../components/FriendCard';
 
-const NewsFeed = () => {
+const Friends = () => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [key, setKey] = useState('');
-  const [postList, setPostList] = useState([]);
+  const [userList, setUserList] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     retrieveData();
@@ -29,40 +26,30 @@ const NewsFeed = () => {
 
   const retrieveData = async () => {
     try {
-      const value = await AsyncStorage.getItem('username');
-      if (value !== null) {
-        let js = JSON.parse(value);
-        // console.log(js.user.uid);
-        getId(js.user.uid);
-      }
+      const list = [];
+      firestore()
+        .collection('users')
+        .get()
+        .then(querySnapshot => {
+          console.log('Total post:', querySnapshot.size);
+
+          querySnapshot.forEach(documentSnapshot => {
+            console.log(
+              'post id: ',
+              documentSnapshot.id,
+              documentSnapshot.data(),
+            );
+            setKey(documentSnapshot.id);
+            list.push(documentSnapshot.data());
+          });
+          setUserList(list);
+          setLoading(false);
+        });
     } catch (error) {
       console.log(error);
       // Error retrieving data
     }
   };
-  const getId = async e => {
-    const list = [];
-    let l;
-    firestore()
-      .collection('posts')
-      .get()
-      .then(querySnapshot => {
-        console.log('Total post:', querySnapshot.size);
-
-        querySnapshot.forEach(documentSnapshot => {
-          console.log(
-            'post id: ',
-            documentSnapshot.id,
-            documentSnapshot.data(),
-          );
-          setKey(documentSnapshot.id);
-          list.push(documentSnapshot.data());
-        });
-        setPostList(list);
-        setLoading(false);
-      });
-  };
-  // console.log(postList);
   return (
     <SafeAreaView style={{flex: 1}}>
       <View>
@@ -70,8 +57,8 @@ const NewsFeed = () => {
           <ActivityIndicator />
         ) : (
           <FlatList
-            data={postList}
-            renderItem={({item}) => <PostCard item={item} />}
+            data={userList}
+            renderItem={({item}) => <FriendCard item={item} />}
           />
         )}
       </View>
@@ -79,7 +66,7 @@ const NewsFeed = () => {
   );
 };
 
-export default NewsFeed;
+export default Friends;
 
 const {height} = Dimensions.get('screen');
 const height_logo = height * 0.28;

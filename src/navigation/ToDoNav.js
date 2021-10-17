@@ -5,10 +5,12 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Profile from '../screens/Profile';
 import EditProfile from '../screens/EditProfile';
 import CreatePost from '../screens/CreatePost';
-import Home from '../screens/Home';
+import ToDo from '../screens/ToDo';
+import CreateToDo from '../screens/CreateToDo';
+import ToDoList from '../screens/ToDoList';
 
 const Stack = createStackNavigator();
-const ProfileNav = () => {
+const ToDoNav = () => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -21,15 +23,14 @@ const ProfileNav = () => {
         },
       }}>
       <Stack.Screen
-        name="Profile"
-        component={Profile}
-        // options={{headerLeft: null}}
+        name="Target Board"
+        component={ToDo}
+        options={{headerLeft: null}}
       />
-      <Stack.Screen name="EditProfile" component={EditProfile} />
-      <Stack.Screen name="CreatePost" component={CreatePost} />
-      <Stack.Screen name="First" component={Home} />
+      <Stack.Screen name="CreateToDo" component={CreateToDo} />
+      <Stack.Screen name="View To Do" component={ToDoList} />
     </Stack.Navigator>
   );
 };
 
-export default ProfileNav;
+export default ToDoNav;

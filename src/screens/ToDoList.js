@@ -2,26 +2,19 @@ import React, {useState, useEffect} from 'react';
 import {
   View,
   Dimensions,
-  Text,
   StyleSheet,
-  Image,
-  Pressable,
-  ScrollView,
   SafeAreaView,
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import CustomButton from '../components/CustomButton';
-import CustomInput from '../components/CustomInput';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import firestore from '@react-native-firebase/firestore';
-import PostCard from '../components/PostCard';
-
-const NewsFeed = () => {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import ToDoCard from '../components/ToDoCard';
+const ToDoList = ({navigation}) => {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [key, setKey] = useState('');
-  const [postList, setPostList] = useState([]);
+  const [todoList, setTodoList] = useState([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     retrieveData();
@@ -30,48 +23,45 @@ const NewsFeed = () => {
   const retrieveData = async () => {
     try {
       const value = await AsyncStorage.getItem('username');
-      if (value !== null) {
-        let js = JSON.parse(value);
-        // console.log(js.user.uid);
-        getId(js.user.uid);
-      }
+      let data = JSON.parse(value);
+      const list = [];
+      // console.log(data.user);
+      firestore()
+        .collection('todo')
+        .where('user', '==', data.user.uid)
+        .get()
+        .then(querySnapshot => {
+          console.log('Total To Do Card:', querySnapshot.size);
+
+          querySnapshot.forEach(documentSnapshot => {
+            console.log(
+              'Card id: ',
+              documentSnapshot.id,
+              documentSnapshot.data(),
+            );
+            setKey(documentSnapshot.id);
+            list.push(documentSnapshot.data());
+          });
+          setTodoList(list);
+          setLoading(false);
+        });
     } catch (error) {
       console.log(error);
       // Error retrieving data
     }
   };
-  const getId = async e => {
-    const list = [];
-    let l;
-    firestore()
-      .collection('posts')
-      .get()
-      .then(querySnapshot => {
-        console.log('Total post:', querySnapshot.size);
-
-        querySnapshot.forEach(documentSnapshot => {
-          console.log(
-            'post id: ',
-            documentSnapshot.id,
-            documentSnapshot.data(),
-          );
-          setKey(documentSnapshot.id);
-          list.push(documentSnapshot.data());
-        });
-        setPostList(list);
-        setLoading(false);
-      });
-  };
-  // console.log(postList);
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View>
+    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+      <View style={{backgroundColor: '#fff'}}>
         {loading ? (
           <ActivityIndicator />
         ) : (
           <FlatList
-            data={postList}
-            renderItem={({item}) => <PostCard item={item} />}
+            style={{backgroundColor: '#fff', margin: 10}}
+            data={todoList}
+            renderItem={({item}) => (
+              <ToDoCard item={item} navigation={navigation} />
+            )}
           />
         )}
       </View>
@@ -79,7 +69,7 @@ const NewsFeed = () => {
   );
 };
 
-export default NewsFeed;
+export default ToDoList;
 
 const {height} = Dimensions.get('screen');
 const height_logo = height * 0.28;

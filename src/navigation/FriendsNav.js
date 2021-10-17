@@ -5,10 +5,10 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Profile from '../screens/Profile';
 import EditProfile from '../screens/EditProfile';
 import CreatePost from '../screens/CreatePost';
-import Home from '../screens/Home';
+import Friends from '../screens/Friends';
 
 const Stack = createStackNavigator();
-const ProfileNav = () => {
+const FriendsNav = () => {
   return (
     <Stack.Navigator
       screenOptions={{
@@ -21,15 +21,12 @@ const ProfileNav = () => {
         },
       }}>
       <Stack.Screen
-        name="Profile"
-        component={Profile}
-        // options={{headerLeft: null}}
+        name="Friend List"
+        component={Friends}
+        options={{headerLeft: null}}
       />
-      <Stack.Screen name="EditProfile" component={EditProfile} />
-      <Stack.Screen name="CreatePost" component={CreatePost} />
-      <Stack.Screen name="First" component={Home} />
     </Stack.Navigator>
   );
 };
 
-export default ProfileNav;
+export default FriendsNav;
